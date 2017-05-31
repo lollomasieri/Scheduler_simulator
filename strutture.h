@@ -21,6 +21,6 @@ struct job {
 	char *state;
 };
 
-enum stato{new, ready, running, blocked, exit};
+enum stato{NEW, READY, RUNNING, BLOCKED, EXIT};
 
 #endif
