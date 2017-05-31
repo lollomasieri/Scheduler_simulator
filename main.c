@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+
 #include "strutture.h"
 
 const char* program_name;
