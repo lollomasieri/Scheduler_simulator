@@ -1,6 +1,7 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "strutture.h"
 
@@ -24,12 +25,12 @@ int main(int argc, char* argv[])
 {
     int next_option;
 
-    const char* const short_options = "hp:n:i:q:";
+    const char* const short_options = "hi:q:";
 
     const struct option long_options[] = {
         { "help",       0, NULL, 'h' },
-        { "output-preemption",     1, NULL, 'p' },
-        { "output-no-preemption",    1, NULL, 'n' },
+  //    { "output-preemption",     1, NULL, 'p' },
+  //    { "output-no-preemption",    1, NULL, 'n' },
         { "input",    1, NULL, 'i' },
         { "quantum",    1, NULL, 'q' },
         { NULL,         0, NULL, 0   }
@@ -43,12 +44,35 @@ int main(int argc, char* argv[])
     program_name = argv[0];
 	
 	//Se parametri < 4
-	if (argc - 1 < 4){
+	if (argc - 1 != 8){
 		if (argc == 1)
 			fprintf(stderr, "No arguments!\n");
 		print_help(stderr, -1);
 	}
-		
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+	int controllo = 0;
+	for(int i = 1; i < argc ; i+=2){
+		//Controllo se è presente il paramentro -op
+		if(!strcmp(argv[i], "-op") || !strcmp(argv[i], "--output-preemption")){
+			output_preemption_filename = argv[i+1];
+			controllo++;
+			break;
+		}
+		//Controllo se è presente il paramentro -on
+		if(!strcmp(argv[i], "-on") || !strcmp(argv[i], "--output-no-preemption")){
+			output_no_preemption_filename = argv[i+1];
+			controllo++;
+			break;
+		}
+	}
+	if(controllo!=2){
+		print_help(stderr, -1);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
     do{
         next_option = getopt_long(argc, argv, short_options, long_options, NULL);
        
@@ -56,14 +80,14 @@ int main(int argc, char* argv[])
             case 'h':
                 print_help(stdout, 0);
 
-            case 'p':
+  /*          case 'p':
                 output_preemption_filename = optarg;
                 break;
 
             case 'n':
                 output_no_preemption_filename = optarg;
                 break;
-
+*/
 	    case 'i':
                 input_filename = optarg;
 				//TODO
@@ -85,6 +109,7 @@ int main(int argc, char* argv[])
         }
     }while(next_option != -1);
 
+    //DA TOGLIERE
 	int verbose = 1;
     if(verbose)
     {
@@ -94,6 +119,7 @@ int main(int argc, char* argv[])
             printf("Argument: %s\n", argv[i]);
         }
     }
+    ////////////
 
     return 0;
 }
