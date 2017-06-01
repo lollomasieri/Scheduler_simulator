@@ -5,6 +5,7 @@
 #include <stdbool.h>
 
 #include "strutture.h"
+#include "funzioni.h"
 
 #define SCHEDULER_PREEMPTION "./scheduler_preemption"
 #define SCHEDULER_NO_PREEMPTION "./scheduler_no_preemption"
