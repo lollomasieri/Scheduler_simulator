@@ -6,6 +6,9 @@
 
 #include "strutture.h"
 
+#define SCHEDULER_PREEMPTION "./scheduler_preemption"
+#define SCHEDULER_NO_PREEMPTION "./scheduler_no_preemption"
+
 const char* program_name;
 bool debug = false;
 
@@ -100,6 +103,10 @@ int main(int argc, char* argv[]){
         }
     }while(next_option != -1);
 
+	//Avvio processi
+	system(SCHEDULER_PREEMPTION);
+	system(SCHEDULER_NO_PREEMPTION);
+	
     return 0;
 }
 
