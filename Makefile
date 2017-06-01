@@ -8,7 +8,7 @@ OBJECTS := $(wildcard *.o)
 
 all: lib main $(PROJECT)
 
-lib: strutture.h
+lib: strutture.h funzioni.c funzioni.h
 	$(CC) -c $(CFLAGS) $<
 
 main: main.c
