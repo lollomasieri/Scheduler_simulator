@@ -1,11 +1,3 @@
-#include <getopt.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <time.h>
-
-#include "strutture.h"
 #include "funzioni.h"
 
 #define SCHEDULER_PREEMPTION "./scheduler_preemption"
@@ -13,19 +5,6 @@
 
 const char* program_name;
 bool debug = true;
-
-void print_help(FILE* stream, int exit_code){
-    fprintf(stream, "Usage: %s -op [outputfile] -on [outputfile] -i [inputfile] -q [quantum]\n", program_name);
-    fprintf(stream,
-        " -h  | --help         		Display this help information.\n"
-        " -op | --output-preemption	Il file di output con i risultati dello scheduler con preemption.\n"
-        " -on | --output-no-preemption	Il file di output con i risultati dello scheduler senza preemption.\n"
-		" -i  | --input			Il file di input contenente la lista dei job.\n"
-		" -q  | --quantum 		La durata di un quanto di tempo (misurato in cicli di clock) sullo scheduler con preemption.\n"
-		);
-
-   exit(exit_code);
-}
 
 int main(int argc, char* argv[]){
 
@@ -36,7 +15,7 @@ int main(int argc, char* argv[]){
 		argv[3]="-on";
 		argv[4]="output_no_preemption.csv";
 		argv[5]="-i";
-		argv[6]="1_jobs.dat";
+		argv[6]="input_jobs/1_jobs.dat";
 		argv[7]="-q";
 		argv[8]="1";
 		fprintf(stdout, "numero argomenti: %d\n", argc);
@@ -55,7 +34,7 @@ int main(int argc, char* argv[]){
 
     const char* output_preemption_filename = NULL;
 	const char* output_no_preemption_filename = NULL;
-	const char* input_filename = NULL;
+	char* input_filename = NULL;
 	int quantum = 0;
 
     program_name = argv[0];
@@ -125,11 +104,26 @@ int main(int argc, char* argv[]){
 		fprintf(stdout, "-i %s\n", input_filename);
 		fprintf(stdout, "-q %d\n", quantum);	
 	 }
+
+	 
+	 //Lettura file di input
+	 struct job *jobs;  
+	 jobs = (struct job *) malloc(2048*sizeof(struct job));
+	 struct istruzione *lista_istruzioni;
+	lista_istruzioni = (struct istruzione *) malloc(2000000*sizeof(struct istruzione));
+      
+  int num_job = read_jobs(input_filename, jobs, lista_istruzioni);
+    printf("\njob letti da schedulare: %d\n", num_job);
+	
+	free(jobs);
+	free(lista_istruzioni);
+	
+
 	
 	//Avvio processi
 	system(SCHEDULER_PREEMPTION);
 	system(SCHEDULER_NO_PREEMPTION);
-	
+
     return 0;
 }
 

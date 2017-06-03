@@ -6,21 +6,21 @@
 #include <sysexits.h>
 #include <stdbool.h>
 
+typedef enum {NEW, READY, RUNNING, BLOCKED, EXIT} STATI;
+
 struct istruzione{
-	bool type_flag;
+	int type_flag;
 	int lenght;
-	int IO_max;
-	// puntatore alla prossima istruzione
-	struct istruzione *successiva;
+	int IO_max;	
+	struct istruzione *successiva; // puntatore alla prossima istruzione
 };
 
-struct job {
+struct job{
 	int id;
 	int arrival_time;
-	int *instr_list;
-	char *state;
+	struct istruzione *instr_list; //puntatore alla prima istruzione
+	STATI stato;
+	int num_istruzioni;
 };
-
-enum stato{NEW, READY, RUNNING, BLOCKED, EXIT};
 
 #endif
