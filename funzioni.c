@@ -80,9 +80,44 @@ jobs[contatore_job-1].num_istruzioni = contatore_istruzioni; //Ultimo job
   
   return contatore_job;
 }
+	
+FILE* open_file(char *output_filename){
+	FILE *fd;
+	
+	/* apre il file in scrittura */
+	fd=fopen(output_filename, "w"); //a --> agginge, w --> sovrascrive
+	if( fd==NULL ) {
+		perror("Errore in apertura del file di output");
+		exit(1);
+	}
+	
+	return fd;
+}
 
-void write_output(int core, int clock, int job_id, STATI stato_attuale){
-	//TODO
+void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job){	
+	const char *stato;
+	switch(stato_job){
+		case 0:
+			stato = "new";
+			break;
+		case 1:
+			stato = "ready";
+			break;
+		case 2:
+			stato = "running";
+			break;
+		case 3: 
+			stato = "blocked";
+			break;
+		case 4: 
+			stato = "exit";
+			break;
+		default:
+			stato = NULL;
+	}
+	
+	/* scrive la nuova linea*/
+	fprintf(fd, "core%d,%d,%d,%s\n", core, clock, job_id, stato);
 }
 	
 int random_num(int max){

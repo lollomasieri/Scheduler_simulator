@@ -17,8 +17,10 @@ void fill_structure(char* input_filename);
 
 int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_istruzioni);
 	
-void write_output(int core, int clock, int job_id, STATI stato_attuale);
+FILE* open_file(char *output_filename);
 
+void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job);
+	
 int random_number(int max);
 
 #endif
