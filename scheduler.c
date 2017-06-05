@@ -1,5 +1,12 @@
 #include "scheduler.h"
 
+#include <pthread.h>
+
+void* core(void* unused){
+    //TODO
+    return NULL;
+}
+
 int sheduler_preemptive(){
 	printf("Io sono lo scheduler con preemption\n");
 	/* Strategia di funzionamento:
@@ -21,7 +28,19 @@ int sheduler_preemptive(){
 	 * Lo scheduler termina quando non ci sono più job da eseguire
 	 */
 	
-	exit(0);
+	 pthread_t thread1_id;
+	 pthread_t thread2_id;
+    /* Create a new thread.
+     * The new thread will run the core function. 
+     */
+    pthread_create(&thread1_id, NULL, &core, NULL);
+	pthread_create(&thread2_id, NULL, &core, NULL);
+	
+	
+    pthread_join (thread1_id, NULL);
+	pthread_join (thread2_id, NULL);
+        
+	return 0;
 }
 
 int scheduler_not_preemptive(){
@@ -43,5 +62,5 @@ int scheduler_not_preemptive(){
 	 * Lo scheduler termina quando non ci sono più job da eseguire
 	 */
 	 
-	exit(0);
+	return 0;
 }

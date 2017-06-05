@@ -163,11 +163,13 @@ int main(int argc, char* argv[]){
         else{ //scheduler not preemptive
 			if(debug) printf("Scheduler not preemptive avviato con PID %d.\n", getpid());
 			scheduler_not_preemptive();
+			exit(0);
 		}
     }
     else{ //scheduler preemptive
 		if(debug) printf("Scheduler preemptive avviato con PID %d.\n", getpid());
 		sheduler_preemptive();
+		exit(0);
 	}
 
 

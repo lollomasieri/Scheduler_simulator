@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-void sheduler_preemptive();
+int sheduler_preemptive();
 
-void scheduler_not_preemptive();
+int scheduler_not_preemptive();
 
 #endif
