@@ -9,7 +9,7 @@
 typedef enum {NEW, READY, RUNNING, BLOCKED, EXIT} STATI;
 
 struct istruzione{
-	int type_flag;
+	bool type_flag;
 	int lenght;
 	int IO_max;	
 	struct istruzione *successiva; // puntatore alla prossima istruzione

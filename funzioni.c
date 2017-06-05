@@ -43,7 +43,7 @@ int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_i
 	
 	else if(linea[0] == 'i'){
 		
-		sscanf(linea, "%c,%d,%d,%d", &tipo_linea, &lista_istruzioni[contatore_istruzioni].type_flag, &lista_istruzioni[contatore_istruzioni].lenght, &lista_istruzioni[contatore_istruzioni].IO_max);
+		sscanf(linea, "%c,%d,%d,%d", &tipo_linea,(int *) &lista_istruzioni[contatore_istruzioni].type_flag, &lista_istruzioni[contatore_istruzioni].lenght, &lista_istruzioni[contatore_istruzioni].IO_max);
 		if(contatore_istruzioni == 0){
 				
 				jobs[contatore_job].instr_list = &lista_istruzioni[contatore_istruzioni];
@@ -105,6 +105,16 @@ void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job){
 	
 	/* scrive la nuova linea*/
 	fprintf(fd, "core%d,%d,%d,%s\n", core, clock, job_id, stato);
+}
+	
+void fork_error(){
+	extern int errno;
+	
+	// error, failed to fork()
+	fprintf(stderr, "Value of errno: %d\n", errno);
+	fprintf(stderr, "Error during fork: %s\n", strerror(errno));
+	perror("Error printed by perror");
+	exit(EX_OSERR); // https://goo.gl/Y40V0r
 }
 	
 int random_num(int max){

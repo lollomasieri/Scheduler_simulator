@@ -8,6 +8,11 @@
 #include <stdbool.h>
 #include <time.h>
 #include <malloc.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <sysexits.h>
+#include <errno.h>
 
 #include "strutture.h"
 
@@ -18,6 +23,8 @@ int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_i
 FILE* open_file(char *output_filename);
 
 void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job);
+
+void fork_error();
 	
 int random_number(int max);
 

@@ -1,4 +1,5 @@
 #include "funzioni.h"
+#include "scheduler.h"
 
 #define SCHEDULER_PREEMPTION "./scheduler_preemption"
 #define SCHEDULER_NO_PREEMPTION "./scheduler_no_preemption"
@@ -116,27 +117,64 @@ int main(int argc, char* argv[]){
 		fprintf(stdout, "-on %s\n", output_no_preemption_filename);	
 		fprintf(stdout, "-i %s\n", input_filename);
 		fprintf(stdout, "-q %d\n", quantum);	
-	 }
+	}
 
 	 
-	 //Lettura file di input
-	 struct job *jobs;  
-	 jobs = (struct job *) malloc(2048*sizeof(struct job));
-	 struct istruzione *lista_istruzioni;
+	//Lettura file di input
+	struct job *jobs;  
+	jobs = (struct job *) malloc(2048*sizeof(struct job));
+	struct istruzione *lista_istruzioni;
 	lista_istruzioni = (struct istruzione *) malloc(2000000*sizeof(struct istruzione));
       
-  int num_job = read_jobs(input_filename, jobs, lista_istruzioni);
+	int num_job = read_jobs(input_filename, jobs, lista_istruzioni);
     printf("\njob letti da schedulare: %d\n", num_job);
 	
+		
+	//Avvio processi scheduler	
+	
+	int sched_preemptive_status;
+	int sched_not_preemptive_status;
+    pid_t sched_preemptive_pid;
+	pid_t sched_not_preemptive_pid;
+
+    if(debug) printf("\nIl processo master ha il PID %d.\n", getpid());
+    
+    sched_preemptive_pid = fork();
+    /*
+     * fork() creates a new process. 
+     * The return value is 0 in the child and the pid of the child in the parent
+     */
+	
+	if (sched_preemptive_pid == -1)	{
+		fork_error();
+	}	 
+    if(sched_preemptive_pid != 0) { //master
+        sched_not_preemptive_pid = fork();
+        if (sched_not_preemptive_pid == -1)	{
+			fork_error();
+		}	 
+        
+        if(sched_not_preemptive_pid != 0) { //master
+			//Inserire codice per condivisione memoria
+			
+			//wait(&sched_preemptive_status); // waits for the child to die (any one!)
+			//wait(&sched_not_preemptive_status); // waits for the child to die (any one!)
+        }        
+        else{ //scheduler not preemptive
+			if(debug) printf("Scheduler not preemptive avviato con PID %d.\n", getpid());
+			scheduler_not_preemptive();
+		}
+    }
+    else{ //scheduler preemptive
+		if(debug) printf("Scheduler preemptive avviato con PID %d.\n", getpid());
+		sheduler_preemptive();
+	}
+
+
+	//Deallocazione memoria
 	free(jobs);
 	free(lista_istruzioni);
 	
-
-	
-	//Avvio processi
-	system(SCHEDULER_PREEMPTION);
-	system(SCHEDULER_NO_PREEMPTION);
-
     return 0;
 }
 

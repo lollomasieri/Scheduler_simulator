@@ -9,12 +9,15 @@ CFILES := $(wildcard *.c)
 OBJECTS := $(wildcard *.o)
 
 
-all: lib func $(PROJECT)
+all: lib func scheduler $(PROJECT)
 
 lib: strutture.h 
 	$(CC) -c $(CFLAGS) $< 
 
 func: funzioni.c funzioni.h
+	$(CC) -c $(CFLAGS) $<
+
+scheduler: scheduler.c scheduler.h
 	$(CC) -c $(CFLAGS) $<
 
 $(PROJECT): main.c
