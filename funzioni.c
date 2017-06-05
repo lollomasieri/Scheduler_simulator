@@ -1,18 +1,5 @@
 #include "funzioni.h"
 
-void print_help(FILE* stream, int exit_code){
-    fprintf(stream, "Usage: %s -op [outputfile] -on [outputfile] -i [inputfile] -q [quantum]\n", program_name);
-    fprintf(stream,
-        " -h  | --help         		Display this help information.\n"
-        " -op | --output-preemption	Il file di output con i risultati dello scheduler con preemption.\n"
-        " -on | --output-no-preemption	Il file di output con i risultati dello scheduler senza preemption.\n"
-		" -i  | --input			Il file di input contenente la lista dei job.\n"
-		" -q  | --quantum 		La durata di un quanto di tempo (misurato in cicli di clock) sullo scheduler con preemption.\n"
-		);
-
-   exit(exit_code);
-}
-
 void fill_structure(char* input_filename){
 	//TODO
 }

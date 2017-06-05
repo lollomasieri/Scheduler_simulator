@@ -11,8 +11,6 @@
 
 #include "strutture.h"
 
-void print_help(FILE* stream, int exit_code);
-
 void fill_structure(char* input_filename);
 
 int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_istruzioni);
