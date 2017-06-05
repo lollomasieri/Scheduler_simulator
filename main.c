@@ -132,8 +132,11 @@ int main(int argc, char* argv[]){
 		
 	//Avvio processi scheduler	
 	
+	/*Da togliere
 	int sched_preemptive_status;
 	int sched_not_preemptive_status;
+	*/
+	
     pid_t sched_preemptive_pid;
 	pid_t sched_not_preemptive_pid;
 
@@ -157,23 +160,26 @@ int main(int argc, char* argv[]){
         if(sched_not_preemptive_pid != 0) { //master
 			//Inserire codice per condivisione memoria
 			
+			
+			/*da togliere?
 			//wait(&sched_preemptive_status); // waits for the child to die (any one!)
 			//wait(&sched_not_preemptive_status); // waits for the child to die (any one!)
+			*/
         }        
         else{ //scheduler not preemptive
 			if(debug) printf("Scheduler not preemptive avviato con PID %d.\n", getpid());
-			scheduler_not_preemptive();
+			scheduler_not_preemptive(output_no_preemption_filename);
 			exit(0);
 		}
     }
     else{ //scheduler preemptive
 		if(debug) printf("Scheduler preemptive avviato con PID %d.\n", getpid());
-		sheduler_preemptive();
+		sheduler_preemptive(output_preemption_filename, quantum);
 		exit(0);
 	}
 
 
-	//Deallocazione memoria
+	//Deallocazione memoria (da spostare!)
 	free(jobs);
 	free(lista_istruzioni);
 	

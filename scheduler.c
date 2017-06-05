@@ -1,13 +1,11 @@
 #include "scheduler.h"
 
-#include <pthread.h>
-
-void* core(void* unused){
+void* core_preemptive(void* unused){
     //TODO
     return NULL;
 }
 
-int sheduler_preemptive(){
+int sheduler_preemptive(const char* output_preemption_filename, int quantum){
 	printf("Io sono lo scheduler con preemption\n");
 	/* Strategia di funzionamento:
 	 * 
@@ -28,22 +26,25 @@ int sheduler_preemptive(){
 	 * Lo scheduler termina quando non ci sono più job da eseguire
 	 */
 	
-	 pthread_t thread1_id;
-	 pthread_t thread2_id;
+	 pthread_t thread_id;
     /* Create a new thread.
      * The new thread will run the core function. 
      */
-    pthread_create(&thread1_id, NULL, &core, NULL);
-	pthread_create(&thread2_id, NULL, &core, NULL);
+    pthread_create(&thread_id, NULL, &core_preemptive, NULL);
 	
-	
-    pthread_join (thread1_id, NULL);
-	pthread_join (thread2_id, NULL);
-        
+	core_preemptive(NULL);	
+		
+    pthread_join(thread_id, NULL);
+	    
 	return 0;
 }
 
-int scheduler_not_preemptive(){
+void* core_not_preemptive(void* unused){
+    //TODO
+    return NULL;
+}
+
+int scheduler_not_preemptive(const char* output_no_preemption_filename){
 	printf("Io sono lo scheduler senza preemption\n");
 	/* Strategia di funzionamento:
 	 * 
@@ -62,5 +63,15 @@ int scheduler_not_preemptive(){
 	 * Lo scheduler termina quando non ci sono più job da eseguire
 	 */
 	 
+	  pthread_t thread_id;
+    /* Create a new thread.
+     * The new thread will run the core function. 
+     */
+    pthread_create(&thread_id, NULL, &core_not_preemptive, NULL);
+		
+	core_not_preemptive(NULL);
+		
+    pthread_join(thread_id, NULL);
+    
 	return 0;
 }

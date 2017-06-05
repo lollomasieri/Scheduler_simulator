@@ -18,7 +18,7 @@ func: funzioni.c funzioni.h
 	$(CC) -c $(CFLAGS) $<
 
 scheduler: scheduler.c scheduler.h
-	$(CC) -c $(CFLAGS) $<
+	$(CC) -c $(CFLAGS) $(LDFLAGS) $<
 
 $(PROJECT): main.c
 	$(CC) -c $(CFLAGS) $<
