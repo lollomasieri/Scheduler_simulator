@@ -1,4 +1,3 @@
-#include "funzioni.h"
 #include "scheduler.h"
 
 #define SCHEDULER_PREEMPTION "./scheduler_preemption"
@@ -44,13 +43,15 @@ int main(int argc, char* argv[]){
         { "input",    1, NULL, 'i' },
         { "quantum",    1, NULL, 'q' },
         { NULL,         0, NULL, 0   }
-    };
-
-    const char* output_preemption_filename = NULL;
-	const char* output_no_preemption_filename = NULL;
+    };	
+    
+    //Strutture per il passaggio dati agli scheduler
+	struct params_sched_preemptive params_preemptive;
+	struct params_sched_not_preemptive params_not_preemptive;
+		
 	char* input_filename = NULL;
 	int quantum = 0;
-
+	
     program_name = argv[0];
 	
 	//Se parametri < 4
@@ -65,12 +66,12 @@ int main(int argc, char* argv[]){
 	for(int i = 1; i < argc ; i+=2){		
 		//Controllo se è presente il paramentro -op
 		if(!strcmp(argv[i], "-op") || !strcmp(argv[i], "--output-preemption")){			
-			output_preemption_filename = argv[i+1];
+			params_preemptive.output_preemption_filename = argv[i+1];
 			controllo++;
 		}
 		//Controllo se è presente il paramentro -on
 		if(!strcmp(argv[i], "-on") || !strcmp(argv[i], "--output-no-preemption")){			
-			output_no_preemption_filename = argv[i+1];
+			params_not_preemptive.output_no_preemption_filename = argv[i+1];
 			controllo++;
 		}
 	}
@@ -112,13 +113,14 @@ int main(int argc, char* argv[]){
         }
     }while(next_option != -1);
 
+	/*
 	if(debug){
 		fprintf(stdout, "-op %s\n", output_preemption_filename);
 		fprintf(stdout, "-on %s\n", output_no_preemption_filename);	
 		fprintf(stdout, "-i %s\n", input_filename);
 		fprintf(stdout, "-q %d\n", quantum);	
 	}
-
+	*/
 	 
 	//Lettura file di input
 	struct job *jobs;  
@@ -167,15 +169,36 @@ int main(int argc, char* argv[]){
 			*/
         }        
         else{ //scheduler not preemptive
+			/* Creo le copie degli array contenentri jobs e istruzioni
+			struct job *jobs_copia = jobs;
+			struct istruzione *lista_istruzioni_copia = lista_istruzioni;
+			* 
+			* TODO
+			* funzione!
+			* for (){
+			* 	copio ogni elemento nei nuovi array
+			* }
+			*/
+			
 			if(debug) printf("Scheduler not preemptive avviato con PID %d.\n", getpid());
-			scheduler_not_preemptive(output_no_preemption_filename);
-			exit(0);
+			scheduler_not_preemptive(params_not_preemptive);
+			
+			/*
+			free(jobs_copia);
+			free(lista_istruzioni_copia);
+			*/
+			//exit(0);
 		}
     }
-    else{ //scheduler preemptive
+    else{ //scheduler preemptive		
 		if(debug) printf("Scheduler preemptive avviato con PID %d.\n", getpid());
-		sheduler_preemptive(output_preemption_filename, quantum);
-		exit(0);
+		
+		params_preemptive.jobs = jobs;
+		params_preemptive.lista_istruzioni = lista_istruzioni;
+		params_preemptive.quantum = quantum;
+		sheduler_preemptive(params_preemptive);
+			
+		//exit(0);
 	}
 
 
@@ -183,6 +206,7 @@ int main(int argc, char* argv[]){
 	free(jobs);
 	free(lista_istruzioni);
 	
+		
     return 0;
 }
 

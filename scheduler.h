@@ -1,15 +1,18 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <stdio.h>
 #include <pthread.h>
+#include <stdio.h>
+#include <stdbool.h>
 
-void* core_preemptive(void* unused);
+#include "funzioni.h"
 
-int sheduler_preemptive(const char* output_preemption_filename, int quantum);
+void* core_preemptive(void* parameters);
 
-void* core_not_preemptive(void* unused);
+int sheduler_preemptive(struct params_sched_preemptive params);
 
-int scheduler_not_preemptive(const char* output_no_preemption_filename);
+void* core_not_preemptive(void* parameters);
+
+int scheduler_not_preemptive(struct params_sched_not_preemptive params);
 
 #endif

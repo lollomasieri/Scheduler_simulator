@@ -17,12 +17,12 @@ lib: strutture.h
 func: funzioni.c funzioni.h
 	$(CC) -c $(CFLAGS) $<
 
-scheduler: scheduler.c scheduler.h
-	$(CC) -c $(CFLAGS) $(LDFLAGS) $<
+scheduler: scheduler.c scheduler.h 
+	$(CC) -c $(CFLAGS) $<
 
 $(PROJECT): main.c
 	$(CC) -c $(CFLAGS) $<
-	$(CC) $(CFLAGS) $(wildcard *.o) -o $(PROJECT)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(wildcard *.o) -o $(PROJECT)
 	
 clean:
 	@rm $(PROJECT)

@@ -23,4 +23,17 @@ struct job{
 	int num_istruzioni;
 };
 
+struct params_sched_preemptive{
+	const char* output_preemption_filename;
+	int quantum;
+	struct job *jobs;
+	struct istruzione *lista_istruzioni;
+};
+
+struct params_sched_not_preemptive{
+	const char* output_no_preemption_filename;
+	struct job *jobs;
+	struct istruzione *lista_istruzioni;
+};
+
 #endif

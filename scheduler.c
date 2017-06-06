@@ -1,12 +1,19 @@
 #include "scheduler.h"
 
-void* core_preemptive(void* unused){
+void* core_preemptive(void* parameters){
+	/* Cast pointer to the right type. */
+    struct params_sched_preemptive* params = (struct params_sched_preemptive*) parameters;
+	
+    printf("core preemptive avviato\n");
     //TODO
+    //int clock=0;
+    printf("id job 200: %d\n", params->jobs[200].id);
     return NULL;
 }
 
-int sheduler_preemptive(const char* output_preemption_filename, int quantum){
+int sheduler_preemptive(struct params_sched_preemptive params){
 	printf("Io sono lo scheduler con preemption\n");
+	
 	/* Strategia di funzionamento:
 	 * 
 	 * Lo scheduler NON deve mandare in esecuzione un job se: clock(core) < clock(job)
@@ -30,21 +37,31 @@ int sheduler_preemptive(const char* output_preemption_filename, int quantum){
     /* Create a new thread.
      * The new thread will run the core function. 
      */
-    pthread_create(&thread_id, NULL, &core_preemptive, NULL);
+     
+    int err = pthread_create(&thread_id, NULL, &core_preemptive, &params);
+	if (err != 0) {
+		fprintf(stderr, "Can't create thread. Reason: '%s'", strerror(err));
+		exit(EX_OSERR);
+	}
 	
-	core_preemptive(NULL);	
+	core_preemptive(&params);	
 		
     pthread_join(thread_id, NULL);
 	    
 	return 0;
 }
 
-void* core_not_preemptive(void* unused){
+void* core_not_preemptive(void* parameters){
+	struct params_sched_not_preemptive* params = (struct params_sched_not_preemptive*) parameters;
+	
+	printf("core not preemptive avviato\n");
     //TODO
+    //int clock = 0;
+    
     return NULL;
 }
 
-int scheduler_not_preemptive(const char* output_no_preemption_filename){
+int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	printf("Io sono lo scheduler senza preemption\n");
 	/* Strategia di funzionamento:
 	 * 
@@ -67,9 +84,13 @@ int scheduler_not_preemptive(const char* output_no_preemption_filename){
     /* Create a new thread.
      * The new thread will run the core function. 
      */
-    pthread_create(&thread_id, NULL, &core_not_preemptive, NULL);
-		
-	core_not_preemptive(NULL);
+    int err = pthread_create(&thread_id, NULL, &core_not_preemptive, &params);
+	if (err != 0) {
+		fprintf(stderr, "Can't create thread. Reason: '%s'", strerror(err));
+		exit(EX_OSERR);
+	}
+	
+	core_not_preemptive(&params);
 		
     pthread_join(thread_id, NULL);
     
