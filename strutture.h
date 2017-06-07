@@ -1,10 +1,19 @@
 #ifndef STRUTTURE_H
 #define STRUTTRE_H
 
+#include <getopt.h>
+#include <errno.h>
+#include <malloc.h>
+#include <pthread.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <sysexits.h>
-#include <stdbool.h>
+#include <time.h>
+#include <unistd.h>
 
 typedef enum {NEW, READY, RUNNING, BLOCKED, EXIT} STATI;
 

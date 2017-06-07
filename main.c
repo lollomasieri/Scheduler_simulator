@@ -1,8 +1,5 @@
 #include "scheduler.h"
 
-#define SCHEDULER_PREEMPTION "./scheduler_preemption"
-#define SCHEDULER_NO_PREEMPTION "./scheduler_no_preemption"
-
 const char* program_name;
 bool debug = true;
 
@@ -140,7 +137,7 @@ int main(int argc, char* argv[]){
 		
 	//Avvio processi scheduler	
 	
-	/*Da togliere
+	/*Da togliere? (COME FUNZIONA?!)
 	int sched_preemptive_status;
 	int sched_not_preemptive_status;
 	*/
@@ -167,8 +164,7 @@ int main(int argc, char* argv[]){
         
         if(sched_not_preemptive_pid != 0) { //master
 			//Inserire codice per condivisione memoria
-			
-			
+					
 			/*da togliere?
 			//wait(&sched_preemptive_status); // waits for the child to die (any one!)
 			//wait(&sched_not_preemptive_status); // waits for the child to die (any one!)
@@ -207,12 +203,9 @@ int main(int argc, char* argv[]){
 		//exit(0);
 	}
 
-
 	//Deallocazione memoria (da spostare!)
 	free(jobs);
 	free(lista_istruzioni);
 	
-		
     return 0;
 }
-

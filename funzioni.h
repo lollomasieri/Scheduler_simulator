@@ -1,19 +1,6 @@
 #ifndef FUNZIONI_H
 #define FUNZIONI_H
 
-#include <getopt.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include <time.h>
-#include <malloc.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <sysexits.h>
-#include <errno.h>
-
 #include "strutture.h"
 
 void fill_structure(char* input_filename);

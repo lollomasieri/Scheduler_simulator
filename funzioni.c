@@ -56,7 +56,7 @@ int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_i
 		}
 }
 
-printf("job: %d, numero di istruzioni: %d\n", contatore_job-1, contatore_istruzioni);
+//printf("job: %d, numero di istruzioni: %d\n", contatore_job-1, contatore_istruzioni);
 jobs[contatore_job-1].num_istruzioni = contatore_istruzioni; //Ultimo job
 
    printf("\njob letti: %d, istruzioni totali: %ld\n",contatore_job, contatore_istruzioni_totali );

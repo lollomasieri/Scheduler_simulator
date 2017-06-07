@@ -1,10 +1,6 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include <pthread.h>
-#include <stdio.h>
-#include <stdbool.h>
-
 #include "funzioni.h"
 
 void* core_preemptive(void* parameters);
