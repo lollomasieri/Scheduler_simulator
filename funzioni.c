@@ -33,7 +33,7 @@ int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_i
 	   
 	      if(contatore_job != 0){
 			  jobs[contatore_job-1].num_istruzioni = contatore_istruzioni;
-			printf("job: %d, numero di istruzioni: %d\n", contatore_job-1, contatore_istruzioni);
+//			printf("job: %d, numero di istruzioni: %d\n", contatore_job-1, contatore_istruzioni);
 		}
 	   sscanf(linea, "%c,%d,%d", &tipo_linea, &jobs[contatore_job].id, &jobs[contatore_job].arrival_time);
 		contatore_job++;	

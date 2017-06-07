@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){
 		argv[3]="-on";
 		argv[4]="output_no_preemption.csv";
 		argv[5]="-i";
-		argv[6]="input_jobs/1_jobs.dat";
+		argv[6]="input_jobs/01_jobs.dat";
 		argv[7]="-q";
 		argv[8]="1";
 		fprintf(stdout, "numero argomenti: %d\n", argc);
@@ -94,9 +94,15 @@ int main(int argc, char* argv[]){
 					input_filename = optarg;
 					break;	
 					
-			case 'q':				
-					quantum = ((int) optarg[0]) - 48; //Conversione ASCII -> dec
-					if (quantum < 0 || quantum > 10){
+			case 'q':	
+					if(optarg[1] != '\0'){
+						quantum = ((int) optarg[0] - 48) * 10 + ((int) optarg[1] - 48); //Conversione ASCII -> dec
+					}
+					else{
+						quantum = (int) optarg[0] - 48;
+					}
+					//printf("q vale: %d", quantum);
+					if (quantum < 1 || quantum > 10){
 						fprintf(stderr, "Valore del parametro -q errato!\n");
 						print_help(stderr, -1);
 					}
