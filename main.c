@@ -134,7 +134,7 @@ int main(int argc, char* argv[]){
 	int num_job = read_jobs(input_filename, jobs, lista_istruzioni);
     printf("\njob letti da schedulare: %d\n", num_job);
 	
-		
+	
 	//Avvio processi scheduler	
 	
 	/*Da togliere? (COME FUNZIONA?!)
@@ -171,24 +171,24 @@ int main(int argc, char* argv[]){
 			*/
         }        
         else{ //scheduler not preemptive
-			/* Creo le copie degli array contenentri jobs e istruzioni
+			// Creo le copie dell'array contenente i jobs
 			struct job *jobs_copia = jobs;
-			struct istruzione *lista_istruzioni_copia = lista_istruzioni;
-			* 
-			* TODO
-			* funzione!
-			* for (){
-			* 	copio ogni elemento nei nuovi array
-			* }
-			*/
+			jobs_copia = (struct job *) malloc(2048*sizeof(struct job));
+			
+			//TODO
+			
+			for (int i=0; i < 2048; i++){
+			 	jobs_copia[i] = jobs[i];
+			 }
+			
+			params_not_preemptive.jobs = jobs_copia;
+			params_not_preemptive.lista_istruzioni = lista_istruzioni;
 			
 			if(debug) printf("Scheduler not preemptive avviato con PID %d.\n", getpid());
 			scheduler_not_preemptive(params_not_preemptive);
-			
-			/*
+						
 			free(jobs_copia);
-			free(lista_istruzioni_copia);
-			*/
+			
 			//exit(0);
 		}
     }

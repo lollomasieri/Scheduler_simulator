@@ -1,12 +1,33 @@
 #include "scheduler.h"
 
+#define MAX_JOBS 2048
+
 void* core_preemptive(void* parameters){
 	/* Cast pointer to the right type. */
     struct params_sched_preemptive* params = (struct params_sched_preemptive*) parameters;
 	
     printf("core preemptive avviato\n");
     //TODO
-    //int clock=0;
+    /*
+    int clock=0;
+    int jobs_completati = 0;
+    int count = 0;
+    struct istruzione istr_corrente;
+    while(jobs_completati < MAX_JOBS){
+		if(clock < params->jobs[count].arrival_time){
+			clock++;
+			continue;
+		}
+		istr_corrente = *(params->jobs[count].instr_list);
+		if(istr_corrente.type_flag == 1){
+			random_num(istr_corrente.IO_max);
+		
+	}
+    
+    */
+    
+    
+    
     printf("id job 200: %d\n", params->jobs[200].id);
     return NULL;
 }
@@ -56,7 +77,8 @@ void* core_not_preemptive(void* parameters){
 	
 	printf("core not preemptive avviato\n");
     //TODO
-    //int clock = 0;
+    int clock = 0;
+    
     
     return NULL;
 }
@@ -79,6 +101,15 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	 * 
 	 * Lo scheduler termina quando non ci sono più job da eseguire
 	 */
+	 
+	struct job *jobs = params.jobs;		
+	//ordino i jobs
+	quickSort(jobs, 0, MAX_JOBS-1);	
+	
+/*	for (int j=0; j<2048; j++){		
+		printf("id: %d, somma lunghezza istruzioni: %d\n",jobs[j].id, jobs[j].somma_lunghezza_istruzioni);
+	}	
+*/ 
 	 
 	  pthread_t thread_id;
     /* Create a new thread.

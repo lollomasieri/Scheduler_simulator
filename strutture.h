@@ -30,6 +30,7 @@ struct job{
 	struct istruzione *instr_list; //puntatore alla prima istruzione
 	STATI stato;
 	int num_istruzioni;
+	int somma_lunghezza_istruzioni;
 };
 
 struct params_sched_preemptive{
