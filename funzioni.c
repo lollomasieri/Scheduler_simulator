@@ -162,7 +162,9 @@ void check_error_thread(int err){
 }
 
 void esegui(int *clock, struct job *puntatore_job){
+	printf("clock: %d\n", *clock);
 	while(1){
+		printf("C %d\n", puntatore_job->num_istruzioni);
 		if(puntatore_job->num_istruzioni == 0){ //Istruzioni finite, job terminato
 			 puntatore_job->stato = EXIT;
 			 break;

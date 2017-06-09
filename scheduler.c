@@ -82,24 +82,28 @@ void* core_not_preemptive(void* parameters){
 	
 	printf("core not preemptive avviato\n");
     //TODO
+    
     int clock = 0;
+
+	bool flag = 0; 
     int jobs_rimanenti = MAX_JOBS;
     STATI stato_old;
  
-	/*DEBUG
+	//DEBUG
     for(int i=0; i<10; i++){
 		printf("\nAAA %d\n", params->jobs[i].instr_list->lenght);
 	}
-	*/
+	//
 	
     while(jobs_rimanenti > 0){
+		printf("B\n");
 		jobs_rimanenti = MAX_JOBS; 
-		
+		flag = 0; //Viene settato a 1 se durante un ciclo viene eseguito almeno un job
 		for (int i = 0; i< MAX_JOBS; i++){
 			stato_old = params->jobs[i].stato;
-			switch(params->jobs[i].stato){
+			switch(stato_old){
 				case 0: //NEW
-					if(params->jobs[i].arrival_time >= clock){
+					if(clock >= params->jobs[i].arrival_time){
 						params->jobs[i].stato = READY;
 						esegui(&clock, &params->jobs[i]); 
 					}
@@ -110,7 +114,7 @@ void* core_not_preemptive(void* parameters){
 				case 2: //RUNNING
 					break;
 				case 3: //BLOCKED
-					if(params->jobs[i].arrival_time >= clock){
+					if(!(clock < params->jobs[i].arrival_time)){
 						params->jobs[i].stato = READY;
 						esegui(&clock, &params->jobs[i]); 
 					}
@@ -125,12 +129,15 @@ void* core_not_preemptive(void* parameters){
 				//TODO
 				//MUTEX!!!
 				//write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job);
+				flag = 1; // --> è stato eseguito almeno 1 job
 				break; //rinizia il ciclo for da i = 0
 			}
-
+		}
+		if(!flag){
+			clock++;
 		}
 	}
-    
+
     return NULL;
 }
 
@@ -157,10 +164,10 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	//ordino i jobs
 	quickSort(jobs, 0, MAX_JOBS-1);	
 	
-/*	for (int j=0; j<2048; j++){		
-		printf("id: %d, somma lunghezza istruzioni: %d\n",jobs[j].id, jobs[j].somma_lunghezza_istruzioni);
+	for (int j=0; j<10; j++){		
+		printf("id: %d, arrival_time: %d, somma lunghezza istruzioni: %d\n",jobs[j].id, jobs[j].arrival_time, jobs[j].somma_lunghezza_istruzioni);
 	}	
-*/ 	 
+ 	 
 	  pthread_t thread0_id;
 	  pthread_t thread1_id;
     /* Create a new thread.
