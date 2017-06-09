@@ -77,9 +77,18 @@ void* core_not_preemptive(void* parameters){
 	
 	printf("core not preemptive avviato\n");
     //TODO
+    /*
     int clock = 0;
-    
-    
+    int jobs_completati = 0;
+    int count = 0;
+    while(jobs_completati < MAX_JOBS){
+		if(clock < params->jobs[count].arrival_time){
+			clock++;
+			continue;
+		}
+		
+	}
+    */
     return NULL;
 }
 
