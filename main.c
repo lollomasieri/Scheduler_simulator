@@ -165,29 +165,30 @@ int main(int argc, char* argv[]){
         if(sched_not_preemptive_pid != 0) { //master
 			//Inserire codice per condivisione memoria
 					
-			/*da togliere?
-			//wait(&sched_preemptive_status); // waits for the child to die (any one!)
-			//wait(&sched_not_preemptive_status); // waits for the child to die (any one!)
-			*/
+			//da togliere?
+			wait(&sched_preemptive_pid); // waits for the child to die (any one!)
+			wait(&sched_not_preemptive_pid); // waits for the child to die (any one!)
+			
         }        
         else{ //scheduler not preemptive
+			
+			/* INUTILE!
 			// Creo le copie dell'array contenente i jobs
 			struct job *jobs_copia = jobs;
 			jobs_copia = (struct job *) malloc(2048*sizeof(struct job));
 			
-			//TODO
-			
 			for (int i=0; i < 2048; i++){
 			 	jobs_copia[i] = jobs[i];
 			 }
+			*/
 			
-			params_not_preemptive.jobs = jobs_copia;
+			params_not_preemptive.jobs = jobs;
 			params_not_preemptive.lista_istruzioni = lista_istruzioni;
-			
+						
 			if(debug) printf("Scheduler not preemptive avviato con PID %d.\n", getpid());
 			scheduler_not_preemptive(params_not_preemptive);
 						
-			free(jobs_copia);
+			//free(jobs_copia);
 			
 			//exit(0);
 		}

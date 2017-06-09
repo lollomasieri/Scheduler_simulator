@@ -153,3 +153,32 @@ void quickSort(struct job *array, int begin, int end) {
        quickSort(array, r, end);
     }
 }
+
+void check_error_thread(int err){
+	if (err != 0) {
+		fprintf(stderr, "Problem with thread. Reason: '%s'", strerror(err));
+		exit(EX_OSERR);
+	}
+}
+
+void esegui(int *clock, struct job *puntatore_job){
+	while(1){
+		if(puntatore_job->num_istruzioni == 0){ //Istruzioni finite, job terminato
+			 puntatore_job->stato = EXIT;
+			 break;
+		 }
+		 else{
+			if(puntatore_job->instr_list->type_flag == 1){ //Istruzione bloccante
+				puntatore_job->arrival_time = random_num(puntatore_job->instr_list->IO_max) + *clock;
+				puntatore_job->stato = BLOCKED;
+				break;
+			}
+			else{
+				printf("Eseguo istruzione"); 
+				*clock = *clock + puntatore_job->instr_list->lenght;
+				puntatore_job->instr_list = puntatore_job->instr_list->successiva;
+				puntatore_job->num_istruzioni--;
+			}
+		}
+	}
+}

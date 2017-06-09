@@ -19,4 +19,8 @@ void swap(struct job array[], int id1, int id2);
 
 void quickSort(struct job array[], int begin, int end);
 
+void check_error_thread(int err);
+	
+void esegui(int *core, struct job *exec_job);
+		
 #endif

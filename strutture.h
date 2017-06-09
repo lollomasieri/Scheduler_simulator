@@ -29,7 +29,7 @@ struct job{
 	int arrival_time;
 	struct istruzione *instr_list; //puntatore alla prima istruzione
 	STATI stato;
-	int num_istruzioni;
+	int num_istruzioni; //istruzioni ancora da eseguire
 	int somma_lunghezza_istruzioni;
 };
 
