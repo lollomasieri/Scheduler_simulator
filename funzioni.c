@@ -37,7 +37,7 @@ int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_i
 			  jobs[contatore_job-1].somma_lunghezza_istruzioni = somma_lunghezza_istruzioni;
 //			printf("job: %d, numero di istruzioni: %d, somma lunghezza istruzioni: %d\n", contatore_job-1, contatore_istruzioni, somma_lunghezza_istruzioni);
 		}
-	   sscanf(linea, "%c,%d,%d", &tipo_linea, &jobs[contatore_job].id, &jobs[contatore_job].arrival_time);
+	   sscanf(linea, "%c,%d,%lud", &tipo_linea, &jobs[contatore_job].id, &jobs[contatore_job].arrival_time);
 		contatore_job++;	
 		contatore_istruzioni=0;		
 		somma_lunghezza_istruzioni = 0;
@@ -46,17 +46,18 @@ int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_i
 	
 	else if(linea[0] == 'i'){
 		
-		sscanf(linea, "%c,%d,%d,%d", &tipo_linea,(int *) &lista_istruzioni[contatore_istruzioni].type_flag, &lista_istruzioni[contatore_istruzioni].lenght, &lista_istruzioni[contatore_istruzioni].IO_max);
+		sscanf(linea, "%c,%d,%d,%d", &tipo_linea,(int *) &lista_istruzioni[contatore_istruzioni_totali].type_flag, &lista_istruzioni[contatore_istruzioni_totali].lenght, &lista_istruzioni[contatore_istruzioni_totali].IO_max);
 		if(contatore_istruzioni == 0){
 				
-				jobs[contatore_job].instr_list = &lista_istruzioni[contatore_istruzioni];
+				jobs[contatore_job-1].instr_list = &lista_istruzioni[contatore_istruzioni_totali];
+			//	printf("job: %d, prima istruzione: %p\n",  jobs[contatore_job-1].id, jobs[contatore_job-1].instr_list);
 			}
 			else {
-				lista_istruzioni[contatore_istruzioni-1].successiva = &lista_istruzioni[contatore_istruzioni];
+				lista_istruzioni[contatore_istruzioni_totali-1].successiva = &lista_istruzioni[contatore_istruzioni_totali];
 			}
 				contatore_istruzioni++;
 				contatore_istruzioni_totali++;
-				somma_lunghezza_istruzioni = somma_lunghezza_istruzioni + lista_istruzioni[contatore_istruzioni].lenght;
+				somma_lunghezza_istruzioni = somma_lunghezza_istruzioni + lista_istruzioni[contatore_istruzioni_totali].lenght;
 		}
 }
 
@@ -161,22 +162,28 @@ void check_error_thread(int err){
 	}
 }
 
-void esegui(int *clock, struct job *puntatore_job){
-	printf("clock: %d\n", *clock);
+void esegui(unsigned long *clock, struct job *puntatore_job){
+	//printf("clock: %d\n", *clock);
 	while(1){
-		printf("C %d\n", puntatore_job->num_istruzioni);
+		
+	//	printf("%d istruzioni\n", puntatore_job->num_istruzioni);
+	//	printf("type: %d\n", puntatore_job->instr_list->type_flag);
+		
+		
 		if(puntatore_job->num_istruzioni == 0){ //Istruzioni finite, job terminato
+			 fprintf(stderr, "istruzioni finite");
 			 puntatore_job->stato = EXIT;
 			 break;
 		 }
-		 else{
+		else{
 			if(puntatore_job->instr_list->type_flag == 1){ //Istruzione bloccante
+			//fprintf(stderr, "istruzione bloccante");
 				puntatore_job->arrival_time = random_num(puntatore_job->instr_list->IO_max) + *clock;
 				puntatore_job->stato = BLOCKED;
 				break;
 			}
 			else{
-				printf("Eseguo istruzione"); 
+			//	fprintf(stderr, "Eseguo istruzione"); 
 				*clock = *clock + puntatore_job->instr_list->lenght;
 				puntatore_job->instr_list = puntatore_job->instr_list->successiva;
 				puntatore_job->num_istruzioni--;

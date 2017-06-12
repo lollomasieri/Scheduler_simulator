@@ -80,23 +80,23 @@ int sheduler_preemptive(struct params_sched_preemptive params){
 void* core_not_preemptive(void* parameters){
 	struct params_sched_not_preemptive* params = (struct params_sched_not_preemptive*) parameters;
 	
-	printf("core not preemptive avviato\n");
+	printf("core%d not preemptive avviato\n", params->core);
     //TODO
     
-    int clock = 0;
+    unsigned long clock = 0;
 
 	bool flag = 0; 
     int jobs_rimanenti = MAX_JOBS;
     STATI stato_old;
  
-	//DEBUG
+	/*DEBUG
     for(int i=0; i<10; i++){
-		printf("\nAAA %d\n", params->jobs[i].instr_list->lenght);
+		printf("\nAAA \n", params->jobs[i].instr_list->lenght);
 	}
-	//
+	*/
 	
     while(jobs_rimanenti > 0){
-		printf("B\n");
+		//printf("clock%d: %ld\n", params->core, clock);
 		jobs_rimanenti = MAX_JOBS; 
 		flag = 0; //Viene settato a 1 se durante un ciclo viene eseguito almeno un job
 		for (int i = 0; i< MAX_JOBS; i++){
@@ -136,6 +136,8 @@ void* core_not_preemptive(void* parameters){
 		if(!flag){
 			clock++;
 		}
+		if(jobs_rimanenti < 2048)
+			printf("jobs rimanenti: %d\n", jobs_rimanenti);
 	}
 
     return NULL;
@@ -163,22 +165,28 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	struct job *jobs = params.jobs;		
 	//ordino i jobs
 	quickSort(jobs, 0, MAX_JOBS-1);	
-	
-	for (int j=0; j<10; j++){		
+		
+/*	for (int j=0; j<10; j++){		
 		printf("id: %d, arrival_time: %d, somma lunghezza istruzioni: %d\n",jobs[j].id, jobs[j].arrival_time, jobs[j].somma_lunghezza_istruzioni);
 	}	
- 	 
+ */	 
 	  pthread_t thread0_id;
 	  pthread_t thread1_id;
     /* Create a new thread.
      * The new thread will run the core function. 
      */
+     
+    struct params_sched_not_preemptive params0 = params;
+    params0.core = 0;
+    struct params_sched_not_preemptive params1 = params;
+    params1.core = 1;
+	
     int err;
-    //AVvio primo thread
-    err = pthread_create(&thread0_id, NULL, &core_not_preemptive, &params);
+    //Avvio primo thread    
+    err = pthread_create(&thread0_id, NULL, &core_not_preemptive, &params0);
 	check_error_thread(err);
 	//Avvio secondo thread
-	err = pthread_create(&thread1_id, NULL, &core_not_preemptive, &params);
+	err = pthread_create(&thread1_id, NULL, &core_not_preemptive, &params1);
 	check_error_thread(err);
 	//Termino primo thread
     err = pthread_join(thread0_id, NULL);

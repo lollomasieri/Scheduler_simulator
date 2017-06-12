@@ -21,6 +21,6 @@ void quickSort(struct job array[], int begin, int end);
 
 void check_error_thread(int err);
 	
-void esegui(int *core, struct job *exec_job);
+void esegui(unsigned long *clock, struct job *exec_job);
 		
 #endif
