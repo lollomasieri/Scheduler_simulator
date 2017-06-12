@@ -75,7 +75,7 @@ jobs[contatore_job-1].num_istruzioni = contatore_istruzioni;
   return contatore_job;
 }
 	
-FILE* open_file(char *output_filename){
+FILE* open_file(const char *output_filename){
 	FILE *fd;
 	
 	/* apre il file in scrittura */
@@ -88,7 +88,7 @@ FILE* open_file(char *output_filename){
 	return fd;
 }
 
-void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job){	
+void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job, pthread_mutex_t *mutex_file_output){	
 	const char *stato;
 	switch(stato_job){
 		case 0:
@@ -110,8 +110,12 @@ void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job){
 			stato = NULL;
 	}
 	
+	pthread_mutex_lock(mutex_file_output); 
+	
 	/* scrive la nuova linea*/
 	fprintf(fd, "core%d,%d,%d,%s\n", core, clock, job_id, stato);
+	
+	pthread_mutex_unlock(mutex_file_output); 
 }
 	
 void fork_error(){

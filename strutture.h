@@ -45,7 +45,7 @@ struct params_sched_not_preemptive{
 	struct job *jobs;
 	struct istruzione *lista_istruzioni;
 	int core;
-	bool *semaforo;
+	FILE* fd;
 };
 
 #endif

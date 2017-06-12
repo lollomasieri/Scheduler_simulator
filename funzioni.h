@@ -7,9 +7,9 @@ void fill_structure(char* input_filename);
 
 int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_istruzioni);
 	
-FILE* open_file(char *output_filename);
+FILE* open_file(const char *output_filename);
 
-void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job);
+void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job, pthread_mutex_t *mutex_file_output);
 
 void fork_error();
 	

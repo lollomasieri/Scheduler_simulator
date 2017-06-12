@@ -2,6 +2,10 @@
 
 #define MAX_JOBS 2048
 
+/* def.mutex condivisi tra threads */
+pthread_mutex_t mutex_coda_jobs; 
+pthread_mutex_t mutex_file_output; 
+
 void* core_preemptive(void* parameters){
 	/* Cast pointer to the right type. */
     struct params_sched_preemptive* params = (struct params_sched_preemptive*) parameters;
@@ -89,10 +93,7 @@ void* core_not_preemptive(void* parameters){
     int jobs_rimanenti = MAX_JOBS;
     STATI stato_old;
  
-	//Apertura file
-	FILE* fd;
-	fd = open_file(params->output_no_preemption_filename);
- 
+	 
 	/*DEBUG
     for(int i=0; i<10; i++){
 		printf("\nAAA \n", params->jobs[i].instr_list->lenght);
@@ -105,18 +106,20 @@ void* core_not_preemptive(void* parameters){
 		flag = 0; //Viene settato a 1 se durante un ciclo viene eseguito almeno un job
 		for (int i = 0; i< MAX_JOBS; i++){
 			
-			while(*(params->semaforo) == 1){}
-				*(params->semaforo) = 1; //Inizio sessione critica
+			pthread_mutex_lock(&mutex_coda_jobs); //Inizio sessione critica
 				
 				stato_old = params->jobs[i].stato;
 				switch(stato_old){
 					case 0: //NEW
 						if(clock >= params->jobs[i].arrival_time){
 							params->jobs[i].stato = READY;
-							esegui(&clock, &(params->jobs[i])); 
+							flag = 1;						
 						}
 						break;
 					case 1: //READY
+						params->jobs[i].stato = RUNNING;
+						write_log(params->fd, params->core, clock, params->jobs[i].id, params->jobs[i].stato, &mutex_file_output);
+						stato_old = params->jobs[i].stato;	
 						esegui(&clock, &(params->jobs[i]));
 						break;
 					case 2: //RUNNING
@@ -125,6 +128,8 @@ void* core_not_preemptive(void* parameters){
 					
 						if(!(clock < params->jobs[i].arrival_time)){
 							params->jobs[i].stato = READY;
+							write_log(params->fd, params->core, clock, params->jobs[i].id, params->jobs[i].stato, &mutex_file_output);
+							stato_old = params->jobs[i].stato;
 							esegui(&clock, &(params->jobs[i])); 
 						}
 						break;
@@ -134,30 +139,32 @@ void* core_not_preemptive(void* parameters){
 					default:
 						break;
 				}
-				
-				*(params->semaforo) = 0; //Fine sessione critica
+						
 			
-				
-			if(stato_old != params->jobs[i].stato){
-				if (params->jobs[i].stato == 4) 
-					//printf("Job %d terminato dal core%d\n", params->jobs[i].id, params->core);
+			if(stato_old != params->jobs[i].stato){				
 				//TODO
 				//MUTEX!!!
-				write_log(fd, params->core, clock, params->jobs[i].id, params->jobs[i].stato);
+				
+				write_log(params->fd, params->core, clock, params->jobs[i].id, params->jobs[i].stato, &mutex_file_output);
+				
 				
 				flag = 1; // --> è stato eseguito almeno 1 job
 				break; //rinizia il ciclo for da i = 0
 			}
+			
+			pthread_mutex_unlock(&mutex_coda_jobs); //Fine sessione critica			
+			printf("clok:%ld\n", clock);
+			
 		}
 		if(!flag){
 			clock++;
 		}
-		//if(jobs_rimanenti < 2048)
-			//printf("jobs rimanenti: %d\n", jobs_rimanenti);
+		if(jobs_rimanenti < 2048)
+			printf("jobs rimanenti: %d\n", jobs_rimanenti);
+			
 	}
 
-	//Chiusura file
-	fclose(fd);
+	
 
     return NULL;
 }
@@ -181,6 +188,14 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	 * Lo scheduler termina quando non ci sono più job da eseguire
 	 */
 	 
+	
+	  /* il mutex e` inizialmente libero: */
+	pthread_mutex_init (&mutex_coda_jobs, NULL);
+	pthread_mutex_init (&mutex_file_output, NULL);
+ 
+	 //Apertura file
+	params.fd = open_file(params.output_no_preemption_filename);
+	 
 	struct job *jobs = params.jobs;		
 	//ordino i jobs
 	quickSort(jobs, 0, MAX_JOBS-1);	
@@ -195,8 +210,7 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
      * The new thread will run the core function. 
      */
      
-     bool semaforo = 0;
-     params.semaforo = &semaforo;
+    
      
     struct params_sched_not_preemptive params0 = params;
     params0.core = 0;
@@ -216,6 +230,9 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	//Termino secondo thread
     err = pthread_join(thread1_id, NULL);
 	check_error_thread(err);
+    
+    //Chiusura file
+	fclose(params.fd);
     
 	return 0;
 }
