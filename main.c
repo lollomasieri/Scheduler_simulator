@@ -1,5 +1,7 @@
 #include "scheduler.h"
 
+#define MAX_JOBS 2048
+
 const char* program_name;
 bool debug = true;
 
@@ -127,7 +129,7 @@ int main(int argc, char* argv[]){
 	 
 	//Lettura file di input
 	struct job *jobs;  
-	jobs = (struct job *) malloc(2048*sizeof(struct job));
+	jobs = (struct job *) malloc(MAX_JOBS*sizeof(struct job));
 	struct istruzione *lista_istruzioni;
 	lista_istruzioni = (struct istruzione *) malloc(2000000*sizeof(struct istruzione));
       

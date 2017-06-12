@@ -89,6 +89,10 @@ void* core_not_preemptive(void* parameters){
     int jobs_rimanenti = MAX_JOBS;
     STATI stato_old;
  
+	//Apertura file
+	FILE* fd;
+	fd = open_file(params->output_no_preemption_filename);
+ 
 	/*DEBUG
     for(int i=0; i<10; i++){
 		printf("\nAAA \n", params->jobs[i].instr_list->lenght);
@@ -100,35 +104,47 @@ void* core_not_preemptive(void* parameters){
 		jobs_rimanenti = MAX_JOBS; 
 		flag = 0; //Viene settato a 1 se durante un ciclo viene eseguito almeno un job
 		for (int i = 0; i< MAX_JOBS; i++){
-			stato_old = params->jobs[i].stato;
-			switch(stato_old){
-				case 0: //NEW
-					if(clock >= params->jobs[i].arrival_time){
-						params->jobs[i].stato = READY;
-						esegui(&clock, &params->jobs[i]); 
-					}
-					break;
-				case 1: //READY
-					esegui(&clock, &params->jobs[i]);
-					break;
-				case 2: //RUNNING
-					break;
-				case 3: //BLOCKED
-					if(!(clock < params->jobs[i].arrival_time)){
-						params->jobs[i].stato = READY;
-						esegui(&clock, &params->jobs[i]); 
-					}
-					break;
-				case 4: //EXIT
-					jobs_rimanenti--;
-					break;
-				default:
-					break;
-			}
+			
+			while(*(params->semaforo) == 1){}
+				*(params->semaforo) = 1; //Inizio sessione critica
+				
+				stato_old = params->jobs[i].stato;
+				switch(stato_old){
+					case 0: //NEW
+						if(clock >= params->jobs[i].arrival_time){
+							params->jobs[i].stato = READY;
+							esegui(&clock, &(params->jobs[i])); 
+						}
+						break;
+					case 1: //READY
+						esegui(&clock, &(params->jobs[i]));
+						break;
+					case 2: //RUNNING
+						break;
+					case 3: //BLOCKED
+					
+						if(!(clock < params->jobs[i].arrival_time)){
+							params->jobs[i].stato = READY;
+							esegui(&clock, &(params->jobs[i])); 
+						}
+						break;
+					case 4: //EXIT
+						jobs_rimanenti--;
+						break;
+					default:
+						break;
+				}
+				
+				*(params->semaforo) = 0; //Fine sessione critica
+			
+				
 			if(stato_old != params->jobs[i].stato){
+				if (params->jobs[i].stato == 4) 
+					//printf("Job %d terminato dal core%d\n", params->jobs[i].id, params->core);
 				//TODO
 				//MUTEX!!!
-				//write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job);
+				write_log(fd, params->core, clock, params->jobs[i].id, params->jobs[i].stato);
+				
 				flag = 1; // --> è stato eseguito almeno 1 job
 				break; //rinizia il ciclo for da i = 0
 			}
@@ -136,9 +152,12 @@ void* core_not_preemptive(void* parameters){
 		if(!flag){
 			clock++;
 		}
-		if(jobs_rimanenti < 2048)
-			printf("jobs rimanenti: %d\n", jobs_rimanenti);
+		//if(jobs_rimanenti < 2048)
+			//printf("jobs rimanenti: %d\n", jobs_rimanenti);
 	}
+
+	//Chiusura file
+	fclose(fd);
 
     return NULL;
 }
@@ -175,6 +194,9 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
     /* Create a new thread.
      * The new thread will run the core function. 
      */
+     
+     bool semaforo = 0;
+     params.semaforo = &semaforo;
      
     struct params_sched_not_preemptive params0 = params;
     params0.core = 0;

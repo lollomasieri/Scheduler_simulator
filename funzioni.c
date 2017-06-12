@@ -163,7 +163,7 @@ void check_error_thread(int err){
 }
 
 void esegui(unsigned long *clock, struct job *puntatore_job){
-	//printf("clock: %d\n", *clock);
+	//printf("clock: %d\n", *clock);	
 	while(1){
 		
 	//	printf("%d istruzioni\n", puntatore_job->num_istruzioni);
@@ -171,15 +171,15 @@ void esegui(unsigned long *clock, struct job *puntatore_job){
 		
 		
 		if(puntatore_job->num_istruzioni == 0){ //Istruzioni finite, job terminato
-			 fprintf(stderr, "istruzioni finite");
 			 puntatore_job->stato = EXIT;
 			 break;
 		 }
 		else{
 			if(puntatore_job->instr_list->type_flag == 1){ //Istruzione bloccante
 			//fprintf(stderr, "istruzione bloccante");
-				puntatore_job->arrival_time = random_num(puntatore_job->instr_list->IO_max) + *clock;
 				puntatore_job->stato = BLOCKED;
+				puntatore_job->instr_list->type_flag = 0;
+				puntatore_job->arrival_time = random_num(puntatore_job->instr_list->IO_max) + *clock;				
 				break;
 			}
 			else{
@@ -187,6 +187,7 @@ void esegui(unsigned long *clock, struct job *puntatore_job){
 				*clock = *clock + puntatore_job->instr_list->lenght;
 				puntatore_job->instr_list = puntatore_job->instr_list->successiva;
 				puntatore_job->num_istruzioni--;
+				//printf("rimanenti: %d", puntatore_job->num_istruzioni);
 			}
 		}
 	}
