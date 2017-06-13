@@ -1,3 +1,6 @@
+#File output
+*.csv
+
 # Prerequisites
 *.d
 
