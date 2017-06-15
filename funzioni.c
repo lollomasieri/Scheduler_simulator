@@ -88,9 +88,12 @@ FILE* open_file(const char *output_filename){
 	return fd;
 }
 
-void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job, pthread_mutex_t *mutex_file_output){	
+void cambiaStato(FILE *fd, int core, int clock, struct job* job_p, STATI stato_new, pthread_mutex_t *mutex_file_output){	
+	//Imposto nuovo stato
+	job_p->stato = stato_new;
+	
 	const char *stato;
-	switch(stato_job){
+	switch(job_p->stato){
 		case 0:
 			stato = "new";
 			break;
@@ -109,13 +112,11 @@ void write_log(FILE *fd, int core, int clock, int job_id, STATI stato_job, pthre
 		default:
 			stato = NULL;
 	}
-	
 	pthread_mutex_lock(mutex_file_output); 
-	
 	/* scrive la nuova linea*/
-	fprintf(fd, "core%d,%d,%d,%s\n", core, clock, job_id, stato);
-	
+	fprintf(fd, "core%d,%d,%d,%s\n", core, clock, job_p->id, stato);
 	pthread_mutex_unlock(mutex_file_output); 
+	//printf("log scritto\n");
 }
 	
 void fork_error(){
@@ -187,7 +188,7 @@ void esegui(unsigned long *clock, struct job *puntatore_job){
 				break;
 			}
 			else{
-			//	fprintf(stderr, "Eseguo istruzione"); 
+				//fprintf(stderr, "Eseguo istruzione"); 
 				*clock = *clock + puntatore_job->instr_list->lenght;
 				puntatore_job->instr_list = puntatore_job->instr_list->successiva;
 				puntatore_job->num_istruzioni--;
@@ -196,3 +197,42 @@ void esegui(unsigned long *clock, struct job *puntatore_job){
 		}
 	}
 }
+
+void esegui_quantum(unsigned long *clock, struct job *puntatore_job, int quantum){
+	//printf("clock: %d\n", *clock);	
+	while(1){
+		
+	//	printf("%d istruzioni\n", puntatore_job->num_istruzioni);
+	//	printf("type: %d\n", puntatore_job->instr_list->type_flag);
+		
+		
+		if(puntatore_job->num_istruzioni == 0){ //Istruzioni finite, job terminato
+			 puntatore_job->stato = EXIT;
+			 break;
+		 }
+		else{
+			if(puntatore_job->instr_list->type_flag == 1){ //Istruzione bloccante
+			//fprintf(stderr, "istruzione bloccante");
+				puntatore_job->stato = BLOCKED;
+				puntatore_job->instr_list->type_flag = 0;
+				puntatore_job->arrival_time = random_num(puntatore_job->instr_list->IO_max) + *clock;				
+				break;
+			}
+			else{
+				//fprintf(stderr, "Eseguo istruzione"); 
+				if (puntatore_job->instr_list->lenght <= quantum){
+					*clock = *clock + puntatore_job->instr_list->lenght;
+					puntatore_job->instr_list = puntatore_job->instr_list->successiva;
+					puntatore_job->num_istruzioni--;
+					quantum = quantum - puntatore_job->instr_list->lenght;;
+				}
+				else{
+					*clock = *clock + quantum;
+					puntatore_job->instr_list->lenght -= quantum;
+				}
+				//printf("rimanenti: %d", puntatore_job->num_istruzioni);
+			}
+		}
+	}
+}
+

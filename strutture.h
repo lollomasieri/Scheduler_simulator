@@ -38,6 +38,7 @@ struct params_sched_preemptive{
 	int quantum;
 	struct job *jobs;
 	struct istruzione *lista_istruzioni;
+	int core;
 };
 
 struct params_sched_not_preemptive{
@@ -45,7 +46,7 @@ struct params_sched_not_preemptive{
 	struct job *jobs;
 	struct istruzione *lista_istruzioni;
 	int core;
-	FILE* fd;
+	//FILE* fd;
 };
 
 #endif
