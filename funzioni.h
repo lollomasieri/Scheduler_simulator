@@ -3,8 +3,6 @@
 
 #include "strutture.h"
 
-void fill_structure(char* input_filename);
-
 int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_istruzioni);
 	
 FILE* open_file(const char *output_filename);

@@ -134,7 +134,7 @@ int main(int argc, char* argv[]){
 	lista_istruzioni = (struct istruzione *) malloc(2000000*sizeof(struct istruzione));
       
 	int num_job = read_jobs(input_filename, jobs, lista_istruzioni);
-    printf("\njob letti da schedulare: %d\n", num_job);
+    printf("Job letti da schedulare: %d\n", num_job);
 	
 	
 	//Avvio processi scheduler	
@@ -147,7 +147,7 @@ int main(int argc, char* argv[]){
     pid_t sched_preemptive_pid;
 	pid_t sched_not_preemptive_pid;
 
-    if(debug) printf("\nIl processo master ha il PID %d.\n", getpid());
+    if(debug) printf("Il processo master ha il PID %d.\n", getpid());
     
     sched_preemptive_pid = fork();
     /*
@@ -171,6 +171,7 @@ int main(int argc, char* argv[]){
 			wait(&sched_preemptive_pid); // waits for the child to die (any one!)
 			wait(&sched_not_preemptive_pid); // waits for the child to die (any one!)
 			
+			printf("Programma terminato.\n");			
         }        
         else{ //scheduler not preemptive
 			

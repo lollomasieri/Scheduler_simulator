@@ -17,24 +17,7 @@ void* core_preemptive(void* parameters){
 	
     printf("core%d preemptive avviato\n", params->core);
     //TODO
-    /*
-    int clock=0;
-    int jobs_completati = 0;
-    int count = 0;
-    struct istruzione istr_corrente;
-    while(jobs_completati < MAX_JOBS){
-		if(clock < params->jobs[count].arrival_time){
-			clock++;
-			continue;
-		}
-		istr_corrente = *(params->jobs[count].instr_list);
-		if(istr_corrente.type_flag == 1){
-			random_num(istr_corrente.IO_max);
-		
-	}
-    
-    */
-        
+            
     unsigned long clock = 0;
 
 	bool flag = 0; 
@@ -50,7 +33,6 @@ void* core_preemptive(void* parameters){
 			switch(params->jobs[i].stato){
 				case 0: //NEW
 					if(clock >= params->jobs[i].arrival_time){
-						printf("Loggo");
 						cambiaStato(f_pre, params->core, clock, &params->jobs[i], READY, &mutex_file_output_pre);
 					}
 					break;
@@ -76,16 +58,16 @@ void* core_preemptive(void* parameters){
 			pthread_mutex_unlock(&mutex_coda_jobs_pre); //Fine sessione critica			
 		}
 		if(!flag)
-			clock++;			
+			clock++;
+	//	printf("clock%d:%ld\n", params->core, clock);			
 	}
-    
     
     //printf("id job 200: %d\n", params->jobs[200].id);
     return NULL;
 }
 
 int sheduler_preemptive(struct params_sched_preemptive params){
-	printf("Io sono lo scheduler con preemption\n");
+	//printf("Io sono lo scheduler con preemption\n");
 	
 	/* Strategia di funzionamento:
 	 * 
@@ -125,11 +107,11 @@ int sheduler_preemptive(struct params_sched_preemptive params){
      */ 
      
      
-     printf("job pre:\n");	
+  /*   printf("job pre:\n");	
 	for (int j=0; j<10; j++){		
 		printf("id: %d, arrival_time: %ld, somma lunghezza istruzioni: %d\n",params.jobs[j].id, params.jobs[j].arrival_time, params.jobs[j].somma_lunghezza_istruzioni);
 	}	
-         
+    */     
     int err;
     //Avvio primo thread
     err = pthread_create(&thread0_id, NULL, &core_preemptive, &params0);
@@ -140,9 +122,11 @@ int sheduler_preemptive(struct params_sched_preemptive params){
 	//Termino primo thread
     err = pthread_join(thread0_id, NULL);
 	check_error_thread(err);
+	printf("core0 preemptive terminato\n");
 	//Termino secondo thread
     err = pthread_join(thread1_id, NULL);
 	check_error_thread(err);
+	printf("core1 preemptive terminato\n");
 	 
 	  //Chiusura file
 	fclose(f_pre);
@@ -205,16 +189,16 @@ void* core_not_preemptive(void* parameters){
 		if(!flag)
 			clock++;
 		
-	/*	printf("clock:%ld\n", clock);
-		if(jobs_rimanenti < 2048)
-			printf("jobs rimanenti: %d\n", jobs_rimanenti);
-*/			
+	//	printf("clock:%ld\n", clock);
+	//	if(jobs_rimanenti < 2048)
+	//		printf("jobs rimanenti: %d\n", jobs_rimanenti);
+		
 	}
     return NULL;
 }
 
 int scheduler_not_preemptive(struct params_sched_not_preemptive params){
-	printf("Io sono lo scheduler senza preemption\n");
+	//printf("Io sono lo scheduler senza preemption\n");
 	/* Strategia di funzionamento:
 	 * 
 	 * Lo scheduler NON deve mandare in esecuzione un job se: clock(core) < clock(job)
@@ -231,23 +215,24 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	 * 
 	 * Lo scheduler termina quando non ci sono più job da eseguire
 	 */
-	 
+	
 	//Apertura file
 	f_nopre = open_file(params.output_no_preemption_filename);
 	
-	  /* il mutex e` inizialmente libero: */
+	//il mutex e` inizialmente libero: 
 	pthread_mutex_init (&mutex_coda_jobs_nopre, NULL);
 	pthread_mutex_init (&mutex_file_output_nopre, NULL);
  
 	struct job *jobs = params.jobs;		
 	//ordino i jobs
 	quickSort(jobs, 0, MAX_JOBS-1);	
-	
+
+/*	
 	printf("job not pre:\n");	
-	for (int j=0; j<2048; j++){		
+	for (int j=0; j<10; j++){		
 		printf("id: %d, arrival_time: %ld, somma lunghezza istruzioni: %d\n",jobs[j].id, jobs[j].arrival_time, jobs[j].somma_lunghezza_istruzioni);
 	}	
- 
+ */
 	  pthread_t thread0_id;
 	  pthread_t thread1_id;
         
@@ -266,9 +251,11 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	//Termino primo thread
     err = pthread_join(thread0_id, NULL);
     check_error_thread(err);
+    printf("core0 not preemptive terminato\n");
 	//Termino secondo thread
     err = pthread_join(thread1_id, NULL);
 	check_error_thread(err);
+	printf("core1 not preemptive terminato\n");
     
     //Chiusura file
 	fclose(f_nopre);

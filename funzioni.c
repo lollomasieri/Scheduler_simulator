@@ -1,9 +1,5 @@
 #include "funzioni.h"
 
-void fill_structure(char* input_filename){
-	//TODO
-}
-
 int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_istruzioni){
   FILE *fd;
   char linea[20];
@@ -20,59 +16,52 @@ int read_jobs(char* input_filename, struct job *jobs, struct istruzione *lista_i
     perror("Errore in apertura del file");
     exit(1);
   }
-
+	printf("Leggo i jobs...\n");
 	/* legge e stampa ogni riga */
 	char tipo_linea;
 	int contatore_job = 0;
-	int contatore_istruzioni;
+	int contatore_istruzioni = 0;
 	long contatore_istruzioni_totali = 0;
-	int somma_lunghezza_istruzioni;
+	int somma_lunghezza_istruzioni = 0;
 	
-  while(fgets(linea, sizeof(linea), fd) != NULL) {
-
-   if (linea[0] == 'j'){
-	   
-	      if(contatore_job != 0){
-			  jobs[contatore_job-1].num_istruzioni = contatore_istruzioni;
-			  jobs[contatore_job-1].somma_lunghezza_istruzioni = somma_lunghezza_istruzioni;
-//			printf("job: %d, numero di istruzioni: %d, somma lunghezza istruzioni: %d\n", contatore_job-1, contatore_istruzioni, somma_lunghezza_istruzioni);
-		}
-	   sscanf(linea, "%c,%d,%lud", &tipo_linea, &jobs[contatore_job].id, &jobs[contatore_job].arrival_time);
-		contatore_job++;	
-		contatore_istruzioni=0;		
-		somma_lunghezza_istruzioni = 0;
-	}		     
-	
-	
-	else if(linea[0] == 'i'){
-		
-		sscanf(linea, "%c,%d,%d,%d", &tipo_linea,(int *) &lista_istruzioni[contatore_istruzioni_totali].type_flag, &lista_istruzioni[contatore_istruzioni_totali].lenght, &lista_istruzioni[contatore_istruzioni_totali].IO_max);
-		if(contatore_istruzioni == 0){
-				
+	while(fgets(linea, sizeof(linea), fd) != NULL) {
+		if (linea[0] == 'j'){
+			if(contatore_job != 0){
+				jobs[contatore_job-1].num_istruzioni = contatore_istruzioni;
+				jobs[contatore_job-1].somma_lunghezza_istruzioni = somma_lunghezza_istruzioni;
+			//	printf("job: %d, numero di istruzioni: %d, somma lunghezza istruzioni: %d\n", contatore_job-1, contatore_istruzioni, somma_lunghezza_istruzioni);
+			}
+			sscanf(linea, "%c,%d,%lud", &tipo_linea, &jobs[contatore_job].id, &jobs[contatore_job].arrival_time);
+			contatore_job++;	
+			contatore_istruzioni=0;		
+			somma_lunghezza_istruzioni = 0;
+		}		  	
+		else if(linea[0] == 'i'){		
+			sscanf(linea, "%c,%d,%d,%d", &tipo_linea,(int *) &lista_istruzioni[contatore_istruzioni_totali].type_flag, &lista_istruzioni[contatore_istruzioni_totali].lenght, &lista_istruzioni[contatore_istruzioni_totali].IO_max);
+			if(contatore_istruzioni == 0){				
 				jobs[contatore_job-1].instr_list = &lista_istruzioni[contatore_istruzioni_totali];
 			//	printf("job: %d, prima istruzione: %p\n",  jobs[contatore_job-1].id, jobs[contatore_job-1].instr_list);
 			}
 			else {
 				lista_istruzioni[contatore_istruzioni_totali-1].successiva = &lista_istruzioni[contatore_istruzioni_totali];
 			}
-				contatore_istruzioni++;
-				contatore_istruzioni_totali++;
-				somma_lunghezza_istruzioni = somma_lunghezza_istruzioni + lista_istruzioni[contatore_istruzioni_totali].lenght;
+			somma_lunghezza_istruzioni += lista_istruzioni[contatore_istruzioni_totali].lenght;
+			contatore_istruzioni++;
+			contatore_istruzioni_totali++;			
+			//printf("contatore istruzioni: %d, contatore istruzioni totali: %d, somma lunghezza istruzioni: %d \n",contatore_istruzioni, contatore_istruzioni_totali, somma_lunghezza_istruzioni);
 		}
-}
+	}
+	//Ultimo job
+	//printf("job: %d, numero di istruzioni: %d\n", contatore_job-1, contatore_istruzioni);
+	jobs[contatore_job-1].somma_lunghezza_istruzioni = somma_lunghezza_istruzioni;
+	jobs[contatore_job-1].num_istruzioni = contatore_istruzioni; 
 
-//Ultimo job
-//printf("job: %d, numero di istruzioni: %d\n", contatore_job-1, contatore_istruzioni);
-jobs[contatore_job-1].somma_lunghezza_istruzioni = somma_lunghezza_istruzioni;
-jobs[contatore_job-1].num_istruzioni = contatore_istruzioni; 
+	//printf("Job letti: %d, istruzioni totali: %ld\n",contatore_job, contatore_istruzioni_totali );
 
-   printf("\njob letti: %d, istruzioni totali: %ld\n",contatore_job, contatore_istruzioni_totali );
-
+	/* chiude il file */
+	fclose(fd);
   
-		/* chiude il file */
-  fclose(fd);
-  
-  return contatore_job;
+	return contatore_job;
 }
 	
 FILE* open_file(const char *output_filename){
@@ -226,9 +215,11 @@ void esegui_quantum(unsigned long *clock, struct job *puntatore_job, int quantum
 					puntatore_job->num_istruzioni--;
 					quantum = quantum - puntatore_job->instr_list->lenght;;
 				}
-				else{
+				else{ //sforo il quanto di tempo
+					puntatore_job->stato = BLOCKED;
 					*clock = *clock + quantum;
 					puntatore_job->instr_list->lenght -= quantum;
+					break;
 				}
 				//printf("rimanenti: %d", puntatore_job->num_istruzioni);
 			}
