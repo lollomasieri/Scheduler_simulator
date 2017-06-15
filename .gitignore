@@ -1,5 +1,8 @@
-#File output
+# File output
 *.csv
+
+# Test
+test.c
 
 # Prerequisites
 *.d
