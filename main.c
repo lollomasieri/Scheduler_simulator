@@ -169,8 +169,19 @@ int main(int argc, char* argv[]){
 					
 			//da togliere?
 			wait(&sched_preemptive_pid); // waits for the child to die (any one!)
+			if(WIFEXITED(sched_preemptive_pid)){
+				printf("Lo scheduler preemptive ha finito correttamente\n");
+			}
+			else{
+				printf("Preemptive process exited abnormally %d\n", WEXITSTATUS(sched_preemptive_pid));
+			}
 			wait(&sched_not_preemptive_pid); // waits for the child to die (any one!)
-			
+			if(WIFEXITED(sched_not_preemptive_pid)){
+				printf("Lo scheduler not preemptive ha finito correttamente\n");
+			}
+			else{
+				printf("Not preemptive process exited abnormally %d\n", WEXITSTATUS(sched_not_preemptive_pid));
+			}
 			printf("Programma terminato.\n");			
         }        
         else{ //scheduler not preemptive

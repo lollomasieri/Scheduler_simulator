@@ -122,11 +122,9 @@ int sheduler_preemptive(struct params_sched_preemptive params){
 	//Termino primo thread
     err = pthread_join(thread0_id, NULL);
 	check_error_thread(err);
-	printf("core0 preemptive terminato\n");
 	//Termino secondo thread
     err = pthread_join(thread1_id, NULL);
 	check_error_thread(err);
-	printf("core1 preemptive terminato\n");
 	 
 	  //Chiusura file
 	fclose(f_pre);
@@ -251,11 +249,9 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	//Termino primo thread
     err = pthread_join(thread0_id, NULL);
     check_error_thread(err);
-    printf("core0 not preemptive terminato\n");
 	//Termino secondo thread
     err = pthread_join(thread1_id, NULL);
 	check_error_thread(err);
-	printf("core1 not preemptive terminato\n");
     
     //Chiusura file
 	fclose(f_nopre);
