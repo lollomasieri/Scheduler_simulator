@@ -14,18 +14,13 @@ FILE* f_nopre;
 void* core_preemptive(void* parameters){
 	/* Cast pointer to the right type. */
     struct params_sched_preemptive* params = (struct params_sched_preemptive*) parameters;
-	
-    printf("core%d preemptive avviato\n", params->core);
-    //TODO
-            
+	             
     unsigned long clock = 0;
 
 	bool flag = 0; 
     int jobs_rimanenti = MAX_JOBS;
 
-	
-    while(jobs_rimanenti > 0){
-		//printf("clock%d: %ld\n", params->core, clock);
+    while(jobs_rimanenti > 0){		
 		jobs_rimanenti = MAX_JOBS; 
 		flag = 0; //Viene settato a 1 se durante un ciclo viene eseguito almeno un job
 		for (int i = 0; i< MAX_JOBS; i++){
@@ -55,43 +50,21 @@ void* core_preemptive(void* parameters){
 				default:
 					break;
 			}
-			pthread_mutex_unlock(&mutex_coda_jobs_pre); //Fine sessione critica			
+			pthread_mutex_unlock(&mutex_coda_jobs_pre); //Fine sessione critica					
 		}
 		if(!flag)
 			clock++;
-	//	printf("clock%d:%ld\n", params->core, clock);			
+					
 	}
-    
-    //printf("id job 200: %d\n", params->jobs[200].id);
     return NULL;
 }
 
 int sheduler_preemptive(struct params_sched_preemptive params){
-	//printf("Io sono lo scheduler con preemption\n");
-	
-	/* Strategia di funzionamento:
-	 * 
-	 * Lo scheduler NON deve mandare in esecuzione un job se: clock(core) < clock(job)
-	 * 
-	 * I job vengono eseguiti nell'ordine di arrivo
-	 * Se l'esecuzione dura più del "quanto di tempo" stabilito (input utente)
-	 * il job viene messo alla fine della coda dei job in attesa
-	 * l'esecuzione procede con il successivo job in attesa
-	 * I job vengono eseguiti in parallelo sui due thread
-	 * 
-	 * Finita l'esecuzione di un job, aggiorno lo stato e scrivo il log su file
-	 * 
-	 * Se arriva un'istruzione con una operazione bloccante
-	 * viene sospesa l'istruzione
-	 * e viene schedulato un altro job
-	 * 
-	 * Lo scheduler termina quando non ci sono più job da eseguire
-	 */
 	
 	//Apertura file
 	f_pre = open_file(params.output_preemption_filename);
 	
-	  /* il mutex e` inizialmente libero: */
+	 /* il mutex e` inizialmente libero: */
 	pthread_mutex_init (&mutex_coda_jobs_pre, NULL);
 	pthread_mutex_init (&mutex_file_output_pre, NULL);
 	
@@ -105,13 +78,7 @@ int sheduler_preemptive(struct params_sched_preemptive params){
     /* Create a new thread.
      * The new thread will run the core function. 
      */ 
-     
-     
-  /*   printf("job pre:\n");	
-	for (int j=0; j<10; j++){		
-		printf("id: %d, arrival_time: %ld, somma lunghezza istruzioni: %d\n",params.jobs[j].id, params.jobs[j].arrival_time, params.jobs[j].somma_lunghezza_istruzioni);
-	}	
-    */     
+       
     int err;
     //Avvio primo thread
     err = pthread_create(&thread0_id, NULL, &core_preemptive, &params0);
@@ -126,33 +93,20 @@ int sheduler_preemptive(struct params_sched_preemptive params){
     err = pthread_join(thread1_id, NULL);
 	check_error_thread(err);
 	 
-	  //Chiusura file
+	 //Chiusura file
 	fclose(f_pre);
-	
 	return 0;
 }
 
 void* core_not_preemptive(void* parameters){
 	struct params_sched_not_preemptive* params = (struct params_sched_not_preemptive*) parameters;
-	
-	printf("core%d not preemptive avviato\n", params->core);
-    //TODO
-    
+	   
     unsigned long clock = 0;
 
 	bool flag = 0; 
     int jobs_rimanenti = MAX_JOBS;
-   // STATI stato_old;
- 
-	 
-	/*DEBUG
-    for(int i=0; i<10; i++){
-		printf("\nAAA \n", params->jobs[i].instr_list->lenght);
-	}
-	*/
 	
-    while(jobs_rimanenti > 0){
-		//printf("clock%d: %ld\n", params->core, clock);
+    while(jobs_rimanenti > 0){		
 		jobs_rimanenti = MAX_JOBS; 
 		flag = 0; //Viene settato a 1 se durante un ciclo viene eseguito almeno un job
 		for (int i = 0; i< MAX_JOBS; i++){
@@ -185,35 +139,13 @@ void* core_not_preemptive(void* parameters){
 			pthread_mutex_unlock(&mutex_coda_jobs_nopre); //Fine sessione critica			
 		}
 		if(!flag)
-			clock++;
-		
-	//	printf("clock:%ld\n", clock);
-	//	if(jobs_rimanenti < 2048)
-	//		printf("jobs rimanenti: %d\n", jobs_rimanenti);
-		
+			clock++;	
 	}
     return NULL;
 }
 
 int scheduler_not_preemptive(struct params_sched_not_preemptive params){
-	//printf("Io sono lo scheduler senza preemption\n");
-	/* Strategia di funzionamento:
-	 * 
-	 * Lo scheduler NON deve mandare in esecuzione un job se: clock(core) < clock(job)
-	 * 
-	 * Per ogni job in coda calcolo la somma della lunghezza di istruzioni da eseguire
-	 * Mando in esecuzione al primo thread quello con la somma minore 
-	 * Il secondo in "classifica" lo mando al secondo thread
-	 * Finita l'esecuzione di un job, aggiorno lo stato e scrivo il log su file
-	 * Il thread si libera e gli invio il job successivo 
-	 * 
-	 * Se arriva un'istruzione con una operazione bloccante
-	 * viene sospesa l'istruzione
-	 * e viene schedulato un altro job
-	 * 
-	 * Lo scheduler termina quando non ci sono più job da eseguire
-	 */
-	
+		
 	//Apertura file
 	f_nopre = open_file(params.output_no_preemption_filename);
 	
@@ -225,20 +157,13 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	//ordino i jobs
 	quickSort(jobs, 0, MAX_JOBS-1);	
 
-/*	
-	printf("job not pre:\n");	
-	for (int j=0; j<10; j++){		
-		printf("id: %d, arrival_time: %ld, somma lunghezza istruzioni: %d\n",jobs[j].id, jobs[j].arrival_time, jobs[j].somma_lunghezza_istruzioni);
-	}	
- */
-	  pthread_t thread0_id;
-	  pthread_t thread1_id;
+	 pthread_t thread0_id;
+	 pthread_t thread1_id;
         
     struct params_sched_not_preemptive params0 = params;
     params0.core = 0;
     struct params_sched_not_preemptive params1 = params;
     params1.core = 1;
-	
     int err;
     //Avvio primo thread    
     err = pthread_create(&thread0_id, NULL, &core_not_preemptive, &params0);
@@ -254,7 +179,6 @@ int scheduler_not_preemptive(struct params_sched_not_preemptive params){
 	check_error_thread(err);
     
     //Chiusura file
-	fclose(f_nopre);
-	
+	fclose(f_nopre);	
 	return 0;
 }

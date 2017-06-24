@@ -3,7 +3,7 @@
 #define MAX_JOBS 2048
 
 const char* program_name;
-bool debug = true;
+const bool debug = false;
 
 void print_help(FILE* stream, int exit_code){
     fprintf(stream, "Usage: %s -op [outputfile] -on [outputfile] -i [inputfile] -q [quantum]\n", program_name);
@@ -19,19 +19,6 @@ void print_help(FILE* stream, int exit_code){
 }
 
 int main(int argc, char* argv[]){
-
-	if(debug){
-		argc = 9;
-		argv[1]="-op";
-		argv[2]="output_preemption.csv";
-		argv[3]="-on";
-		argv[4]="output_no_preemption.csv";
-		argv[5]="-i";
-		argv[6]="input_jobs/01_jobs.dat";
-		argv[7]="-q";
-		argv[8]="1";
-		fprintf(stdout, "numero argomenti: %d\n", argc);
-	}
 
     int next_option;
 
@@ -99,12 +86,7 @@ int main(int argc, char* argv[]){
 					}
 					else{
 						quantum = (int) optarg[0] - 48;
-					}
-					//printf("q vale: %d", quantum);
-					if (quantum < 1 || quantum > 10){
-						fprintf(stderr, "Valore del parametro -q errato!\n");
-						print_help(stderr, -1);
-					}
+					}					
 					break;
 				
             case '?':
@@ -117,15 +99,6 @@ int main(int argc, char* argv[]){
                 abort();
         }
     }while(next_option != -1);
-
-	/*
-	if(debug){
-		fprintf(stdout, "-op %s\n", output_preemption_filename);
-		fprintf(stdout, "-on %s\n", output_no_preemption_filename);	
-		fprintf(stdout, "-i %s\n", input_filename);
-		fprintf(stdout, "-q %d\n", quantum);	
-	}
-	*/
 	 
 	//Lettura file di input
 	struct job *jobs;  
@@ -134,26 +107,17 @@ int main(int argc, char* argv[]){
 	lista_istruzioni = (struct istruzione *) malloc(2000000*sizeof(struct istruzione));
       
 	int num_job = read_jobs(input_filename, jobs, lista_istruzioni);
-    printf("Job letti da schedulare: %d\n", num_job);
+    if(debug) printf("Jobs da schedulare: %d\n", num_job);
 	
 	
-	//Avvio processi scheduler	
-	
-	/*Da togliere? (COME FUNZIONA?!)
-	int sched_preemptive_status;
-	int sched_not_preemptive_status;
-	*/
-	
+	//Avvio processi scheduler		
+	int child_status;
     pid_t sched_preemptive_pid;
 	pid_t sched_not_preemptive_pid;
 
     if(debug) printf("Il processo master ha il PID %d.\n", getpid());
     
     sched_preemptive_pid = fork();
-    /*
-     * fork() creates a new process. 
-     * The return value is 0 in the child and the pid of the child in the parent
-     */
 	
 	if (sched_preemptive_pid == -1)	{
 		fork_error();
@@ -164,61 +128,41 @@ int main(int argc, char* argv[]){
 			fork_error();
 		}	 
         
-        if(sched_not_preemptive_pid != 0) { //master
-			//Inserire codice per condivisione memoria
-					
-			//da togliere?
-			wait(&sched_preemptive_pid); // waits for the child to die (any one!)
-			if(WIFEXITED(sched_preemptive_pid)){
-				printf("Lo scheduler preemptive ha finito correttamente\n");
+        if(sched_not_preemptive_pid != 0) { //master			
+			waitpid(sched_not_preemptive_pid,&child_status,0); // waits for the child to die 
+			if(WIFEXITED(child_status)) {
+				if(debug) printf("NOT Preemptive exited normally with exit code %d.\n", WEXITSTATUS(child_status));
 			}
-			else{
-				printf("Preemptive process exited abnormally %d\n", WEXITSTATUS(sched_preemptive_pid));
+			else {
+				printf("NOT Preemptive process exited abnormally.\n");
 			}
-			wait(&sched_not_preemptive_pid); // waits for the child to die (any one!)
-			if(WIFEXITED(sched_not_preemptive_pid)){
-				printf("Lo scheduler not preemptive ha finito correttamente\n");
+			
+			waitpid(sched_preemptive_pid,&child_status,0); // waits for the child to die 
+			 if(WIFEXITED(child_status) ) {
+				if(debug) printf("Preemptive exited normally with exit code %d.\n", WEXITSTATUS(child_status));
 			}
-			else{
-				printf("Not preemptive process exited abnormally %d\n", WEXITSTATUS(sched_not_preemptive_pid));
+			else {
+				printf("Preemptive process exited abnormally.\n");
 			}
-			printf("Programma terminato.\n");			
+						
+			if(debug) printf("Programma terminato.\n");			
         }        
-        else{ //scheduler not preemptive
-			
-			/* INUTILE!
-			// Creo le copie dell'array contenente i jobs
-			struct job *jobs_copia = jobs;
-			jobs_copia = (struct job *) malloc(2048*sizeof(struct job));
-			
-			for (int i=0; i < 2048; i++){
-			 	jobs_copia[i] = jobs[i];
-			 }
-			*/
-			
+        else{ //scheduler not preemptive	
+			if(debug) printf("Scheduler not preemptive avviato con PID %d.\n", getpid());				
 			params_not_preemptive.jobs = jobs;
-			params_not_preemptive.lista_istruzioni = lista_istruzioni;
-						
-			if(debug) printf("Scheduler not preemptive avviato con PID %d.\n", getpid());
+			params_not_preemptive.lista_istruzioni = lista_istruzioni;			
 			scheduler_not_preemptive(params_not_preemptive);
-						
-			//free(jobs_copia);
-			
-			//exit(0);
 		}
     }
     else{ //scheduler preemptive		
-		if(debug) printf("Scheduler preemptive avviato con PID %d.\n", getpid());
-		
+		if(debug) printf("Scheduler preemptive avviato con PID %d.\n", getpid());		
 		params_preemptive.jobs = jobs;
 		params_preemptive.lista_istruzioni = lista_istruzioni;
 		params_preemptive.quantum = quantum;
 		sheduler_preemptive(params_preemptive);
-			
-		//exit(0);
 	}
 
-	//Deallocazione memoria (da spostare!)
+	//Deallocazione memoria 
 	free(jobs);
 	free(lista_istruzioni);
 	
